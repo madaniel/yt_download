@@ -2,6 +2,7 @@ import yt_dlp
 import subprocess
 import os
 import sys
+import argparse
 
 def download_youtube_video_1080p(url, download_path="."):
     downloaded_file = None  # full path to the final merged file
@@ -154,26 +155,53 @@ def trim_video(input_file: str, output_file: str, cut_seconds: int) -> bool:
 
 
 
-video_url, trim_seconds = "https://www.youtube.com/watch?v=BimafvfspqA", 15
+def main():
+    parser = argparse.ArgumentParser(description='Download YouTube videos and optionally trim them')
+    parser.add_argument('url', help='YouTube video URL to download')
+    parser.add_argument('--trim', '-t', type=int, default=0, 
+                       help='Number of seconds to trim from the end (default: 0, no trimming)')
+    parser.add_argument('--download-path', '-d', default='.', 
+                       help='Directory to save downloaded videos (default: current directory)')
+    
+    args = parser.parse_args()
+    
+    print(f"🎬 Downloading video from: {args.url}")
+    print(f"📁 Save location: {args.download_path}")
+    if args.trim > 0:
+        print(f"✂️ Will trim {args.trim} seconds from the end")
+    
+    # Download the video
+    downloaded = download_youtube_video_1080p(args.url, args.download_path)
+    
+    if not downloaded or not os.path.isfile(downloaded):
+        print("❌ Download failed!")
+        sys.exit(1)
+    
+    mp4_files = [downloaded] if downloaded and os.path.isfile(downloaded) else get_mp4_files(args.download_path)
+    
+    # Check if files are Plex-friendly
+    print("\n🔍 Checking video compatibility...")
+    [is_plex_friendly(mp4) for mp4 in mp4_files]
+    
+    # Trim if requested
+    if args.trim > 0:
+        if len(mp4_files) != 1:
+            print("❌ Trimming requires exactly one video file!")
+            sys.exit(1)
+        
+        src = mp4_files[0]
+        base, ext = os.path.splitext(src)
+        dst = f"{base}.trimmed{ext}"
+        
+        print(f"\n✂️ Trimming {args.trim} seconds from: {os.path.basename(src)}")
+        success = trim_video(src, dst, args.trim)
+        
+        if success:
+            print("✅ Video successfully trimmed.")
+        else:
+            print("❌ Trimming failed.")
+    else:
+        print("\n✅ Download completed! (No trimming requested)")
 
-
-downloaded = download_youtube_video_1080p(video_url)
-mp4_files = [downloaded] if downloaded and os.path.isfile(downloaded) else get_mp4_files()
-[is_plex_friendly(mp4) for mp4 in mp4_files]
-
-
-# Need only one video file to enable trim
-if trim_seconds == 0 or len(mp4_files) != 1:
-    print("Trimming skipped !")
-    sys.exit(1)
-
-# Cut last 10 seconds
-src = mp4_files[0]
-base, ext = os.path.splitext(src)
-dst = f"{base}.trimmed{ext}"
-success = trim_video(src, dst, trim_seconds)
-
-if success:
-    print("✅ Video successfully trimmed.")
-else:
-    print("Trimming failed.")
+if __name__ == "__main__":
+    main()
