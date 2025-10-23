@@ -8,13 +8,13 @@ A user-friendly YouTube video downloader with optional trimming functionality.
 
 ```bash
 # Download a video
-python3 download.py "https://www.youtube.com/watch?v=VIDEO_ID"
+python download.py "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Download and trim 15 seconds from the end
-python3 download.py "https://www.youtube.com/watch?v=VIDEO_ID" --trim 15
+python download.py "https://www.youtube.com/watch?v=VIDEO_ID" --trim 15
 
 # Download to a specific directory
-python3 download.py "https://www.youtube.com/watch?v=VIDEO_ID" --download-path ~/Downloads
+python download.py "https://www.youtube.com/watch?v=VIDEO_ID" --download-path ~/Downloads
 ```
 
 ## Features
@@ -34,7 +34,7 @@ python3 download.py "https://www.youtube.com/watch?v=VIDEO_ID" --download-path ~
 ## Installation
 
 1. Clone this repository
-2. Create virtual environment: `python3 -m venv venv`
+2. Create virtual environment: `python -m venv venv` (On macOS/Linux: `python3 -m venv venv`)
 3. Activate virtual environment: `source venv/bin/activate` (On Windows: `venv\Scripts\activate`)
 4. Install dependencies: `pip install -r requirements.txt`
 
@@ -42,16 +42,16 @@ python3 download.py "https://www.youtube.com/watch?v=VIDEO_ID" --download-path ~
 
 ```bash
 # Basic download
-python3 download.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+python download.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
 # Download and trim 30 seconds
-python3 download.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ" -t 30
+python download.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ" -t 30
 
 # Download to specific folder
-python3 download.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ" -d ~/Videos
+python download.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ" -d ~/Videos
 
 # Combine options
-python3 download.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ" -t 10 -d ~/Downloads
+python download.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ" -t 10 -d ~/Downloads
 ```
 
 ## Command Line Options

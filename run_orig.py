@@ -12,7 +12,6 @@ def download_youtube_video_1080p(url, download_path="."):
         'format': 'bv*[height>=2160]+ba/bv*[height>=1440]+ba/bv*+ba/b',
         'outtmpl': f'{download_path}/%(title)s.%(ext)s',
         'merge_output_format': 'mp4',
-        'cookiefile': '/Users/user/Git/yt_download/cookies.txt',
         'cookies-from-browser': 'chrome',
         # Try multiple clients to mitigate SABR/403 and expose more formats
         'extractor_args': {
@@ -21,6 +20,10 @@ def download_youtube_video_1080p(url, download_path="."):
             }
         },
     }
+    
+    # Add cookies file if it exists
+    if os.path.exists('cookies.txt'):
+        ydl_opts['cookiefile'] = 'cookies.txt'
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
