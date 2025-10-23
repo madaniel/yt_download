@@ -4,24 +4,37 @@ import os
 import sys
 
 def download_youtube_video_1080p(url, download_path="."):
-    downloaded_file = None  # this will store the full path to the downloaded file
-    
+    downloaded_file = None  # full path to the final merged file
+
     ydl_opts = {
-        # More flexible format selection - try 1080p first, then fallback to best available
-        'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
+        # Prefer 4K first, then 1440p, then best available
+        'format': 'bv*[height>=2160]+ba/bv*[height>=1440]+ba/bv*+ba/b',
         'outtmpl': f'{download_path}/%(title)s.%(ext)s',
         'merge_output_format': 'mp4',
-        'cookiefile': '/Users/user/Git/yt_download/cookies.txt', 
-        'cookies-from-browser': 'chrome',  # Use cookies directly from your browser session
+        'cookiefile': '/Users/user/Git/yt_download/cookies.txt',
+        'cookies-from-browser': 'chrome',
+        # Try multiple clients to mitigate SABR/403 and expose more formats
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'ios', 'web']
+            }
+        },
     }
-        
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
-            ydl.download([url])
-            print(f"Downloaded 1080p video from: {url}")
-            
+            info = ydl.extract_info(url, download=True)
+            # Try to determine the exact merged output filepath
+            requested_downloads = info.get('requested_downloads') or []
+            for rd in requested_downloads:
+                if rd.get('filepath'):
+                    downloaded_file = rd['filepath']
+            if not downloaded_file:
+                downloaded_file = ydl.prepare_filename(info)
+            print(f"Downloaded video from: {url}")
         except Exception as e:
             print(f"An error occurred: {e}")
+    return downloaded_file
 
 def get_codec(file_path, stream_type):
     try:
@@ -141,22 +154,24 @@ def trim_video(input_file: str, output_file: str, cut_seconds: int) -> bool:
 
 
 
-video_url, trim_seconds = "https://www.youtube.com/watch?v=e85suzRafVQ", 0
+video_url, trim_seconds = "https://www.youtube.com/watch?v=BimafvfspqA", 15
 
 
-
-download_youtube_video_1080p(video_url)
-mp4_files = get_mp4_files()
+downloaded = download_youtube_video_1080p(video_url)
+mp4_files = [downloaded] if downloaded and os.path.isfile(downloaded) else get_mp4_files()
 [is_plex_friendly(mp4) for mp4 in mp4_files]
 
 
 # Need only one video file to enable trim
-if trim_seconds == 0 or len(mp4_files) > 1:
+if trim_seconds == 0 or len(mp4_files) != 1:
     print("Trimming skipped !")
     sys.exit(1)
 
 # Cut last 10 seconds
-success = trim_video(mp4_files[0], "output_trimmed.mp4", trim_seconds)
+src = mp4_files[0]
+base, ext = os.path.splitext(src)
+dst = f"{base}.trimmed{ext}"
+success = trim_video(src, dst, trim_seconds)
 
 if success:
     print("✅ Video successfully trimmed.")
