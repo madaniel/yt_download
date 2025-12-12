@@ -8,17 +8,14 @@ def download_youtube_video_1080p(url, download_path="."):
     downloaded_file = None  # full path to the final merged file
 
     ydl_opts = {
-        # Prefer 4K first, then 1440p, then best available
-        'format': 'bv*[height>=2160]+ba/bv*[height>=1440]+ba/bv*+ba/b',
+        # Enforce minimum 1080p (height>=1080) and maximum 4k (height<=2160)
+        # Fail if no such video stream is available.
+        'format': 'bv*[height>=1080][height<=2160]+ba/b[height>=1080][height<=2160]',
         'outtmpl': f'{download_path}/%(title)s.%(ext)s',
         'merge_output_format': 'mp4',
         'cookies-from-browser': 'chrome',
-        # Try multiple clients to mitigate SABR/403 and expose more formats
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['android', 'ios', 'web']
-            }
-        },
+        'cookies-from-browser': 'chrome',
+
     }
     
     # Add cookies file if it exists
