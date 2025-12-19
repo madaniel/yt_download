@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+venv
+env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+downloads/
+*.mp4
+*.webm
+*.mkv
+
+# Keep only necessary files
+# Include: web_app.py, requirements.txt, Dockerfile, docker-compose.yml, cookies.txt

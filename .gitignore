@@ -1,2 +1,6 @@
 /venv
 .DS_Store
+
+# Security: Session cookies - DO NOT COMMIT
+cookies.txt
+*.cookies
